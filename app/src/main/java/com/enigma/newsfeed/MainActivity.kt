@@ -15,16 +15,23 @@ class MainActivity : AppCompatActivity() {
 
         Thread(object : Runnable {
             override fun run() {
-                val call = Api.getApi().getHeadlines()
-                call.enqueue(object : Callback<Any> {
-                    override fun onFailure(call: Call<Any>, t: Throwable) {
+                val call = Api.getApi().getHeadlines(BuildConfig.API_KEY, "in")
+                call.enqueue(object : Callback<NewsResponse> {
 
+                    override fun onFailure(call: Call<NewsResponse>, t: Throwable) {
                     }
 
-                    override fun onResponse(call: Call<Any>, response: Response<Any>) {
-                        Log.d("zzzzz", response.toString())
-                    }
+                    override fun onResponse(
+                        call: Call<NewsResponse>,
+                        response: Response<NewsResponse>
+                    ) {
+                        val body = response.body()
+                        Log.d("zzzzz", body.toString())
+                        body?.articles?.forEach {
+                            Log.d("zzzzzzz", it.toString())
+                        }
 
+                    }
                 })
             }
         }).start()
