@@ -4,6 +4,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import kotlinx.android.synthetic.main.item_news.view.*
 
 class NewsAdapter : RecyclerView.Adapter<NewsViewHolder>() {
@@ -30,6 +31,12 @@ class NewsAdapter : RecyclerView.Adapter<NewsViewHolder>() {
 
 class NewsViewHolder(itemview: View) : RecyclerView.ViewHolder(itemview) {
     fun bindData(article: Article) {
-        itemView.txt_title.text = article.title
+        itemView.apply {
+            txt_title.text = article.title
+            txt_description.text = article.description
+            txt_source.text = article.source.name
+            txt_news_date.text = article.publishedAt
+            Glide.with(this).load(article.urlToImage).into(img_news)
+        }
     }
 }

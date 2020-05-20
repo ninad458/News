@@ -6,12 +6,47 @@
     android:orientation="vertical"
     android:padding="4dp">
 
+    <ImageView
+        android:id="@+id/img_news"
+        android:layout_width="match_parent"
+        android:layout_height="150dp"
+        android:scaleType="centerCrop"
+        tools:src="@tools:sample/backgrounds/scenic" />
+
     <TextView
         android:id="@+id/txt_title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:ellipsize="end"
         android:maxLines="2"
+        android:textAppearance="@style/TextAppearance.AppCompat.Title"
         tools:text="@tools:sample/lorem/random" />
+
+    <TextView
+        android:id="@+id/txt_description"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:ellipsize="end"
+        android:maxLines="5"
+        android:textAppearance="@style/TextAppearance.AppCompat.SearchResult.Subtitle"
+        tools:text="@tools:sample/lorem/random" />
+
+    <TextView
+        android:id="@+id/txt_source"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="end"
+        android:textAlignment="textEnd"
+        android:textStyle="bold"
+        tools:text="The hindustan times" />
+
+    <TextView
+        android:id="@+id/txt_news_date"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="end"
+        android:textAlignment="textEnd"
+        android:textAppearance="@style/TextAppearance.AppCompat.Caption"
+        tools:text="@tools:sample/date/mmddyy" />
 
 </LinearLayout>

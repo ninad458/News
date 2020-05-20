@@ -2,6 +2,7 @@ package com.enigma.newsfeed
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import androidx.recyclerview.widget.DividerItemDecoration
 import kotlinx.android.synthetic.main.activity_main.*
 import retrofit2.Call
 import retrofit2.Callback
@@ -15,6 +16,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         list.adapter = newsAdapter
+        list.addItemDecoration(DividerItemDecoration(this, DividerItemDecoration.VERTICAL))
 
         val call = Api.getApi().getHeadlines(BuildConfig.API_KEY, "in")
         call.enqueue(object : Callback<NewsResponse> {
