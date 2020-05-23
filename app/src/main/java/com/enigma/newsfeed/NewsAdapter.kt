@@ -9,6 +9,8 @@ import kotlinx.android.synthetic.main.item_news.view.*
 
 class NewsAdapter : RecyclerView.Adapter<NewsViewHolder>() {
 
+    val newsCount get() = news.size
+
     private val news = mutableListOf<Article>()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
@@ -26,6 +28,12 @@ class NewsAdapter : RecyclerView.Adapter<NewsViewHolder>() {
         news.clear()
         news.addAll(articles)
         notifyDataSetChanged()
+    }
+
+    fun addNews(articles: List<Article>) {
+        val oldSize = news.size
+        news.addAll(articles)
+        notifyItemRangeChanged(oldSize, articles.size)
     }
 }
 

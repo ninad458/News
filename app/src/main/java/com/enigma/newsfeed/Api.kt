@@ -40,6 +40,8 @@ interface Api {
     @GET("top-headlines")
     fun getHeadlines(
         @Header("x-api-key") apiKey: String,
-        @Query("country") country: String
+        @Query("country") country: String,
+        @Query("page") pageNo: Int,
+        @Query("pageSize") pageSize: Int
     ): Call<NewsResponse>
 }
