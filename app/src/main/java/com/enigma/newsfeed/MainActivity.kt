@@ -9,6 +9,7 @@ import kotlinx.android.synthetic.main.activity_main.*
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import kotlin.math.ceil
 
 class MainActivity : AppCompatActivity() {
 
@@ -26,6 +27,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun loadNews(pageNo: Int = 1) {
+        if (pageNo != 1) newsAdapter.loading = true
         list.clearOnScrollListeners()
         val call = Api.getApi().getHeadlines(
             BuildConfig.API_KEY,
@@ -34,12 +36,14 @@ class MainActivity : AppCompatActivity() {
         call.enqueue(object : Callback<NewsResponse> {
 
             override fun onFailure(call: Call<NewsResponse>, t: Throwable) {
+                newsAdapter.loading = false
             }
 
             override fun onResponse(
                 call: Call<NewsResponse>,
                 response: Response<NewsResponse>
             ) {
+                newsAdapter.loading = false
                 val body = response.body() ?: return
                 val articles = body.articles
                 if (articles.isEmpty()) return
@@ -55,7 +59,7 @@ class MainActivity : AppCompatActivity() {
                             val itemCount = itemCount
 
                             if (lastVisible + 2 > itemCount) {
-                                loadNews((newsCount / PAGE_SIZE) + 1)
+                                loadNews((ceil(newsCount.toDouble() / PAGE_SIZE) + 1).toInt())
                             }
                         }
                     }
