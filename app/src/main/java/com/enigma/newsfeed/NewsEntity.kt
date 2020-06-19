@@ -1,15 +1,11 @@
 package com.enigma.newsfeed
 
-data class NewsResponse(
-    val status: String,
-    val totalResults: Int,
-    val articles: List<Article>
-)
+import androidx.room.Entity
+import java.util.*
 
-data class Source(val id: String, val name: String)
-
-data class Article(
-    val source: Source,
+@Entity(tableName = "news", primaryKeys = ["sourceName", "title"])
+data class NewsEntity(
+    val sourceName: String,
     val author: String?,
     val title: String,
     val description: String,

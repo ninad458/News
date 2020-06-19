@@ -19,6 +19,8 @@ class MainActivity : AppCompatActivity() {
 
     private val newsAdapter = NewsAdapter()
 
+    private val newsDB by lazy { appDB.newsDao() }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -47,6 +49,24 @@ class MainActivity : AppCompatActivity() {
                 val body = response.body() ?: return
                 val articles = body.articles
                 if (articles.isEmpty()) return
+
+                Thread {
+                    newsDB.addNews(articles.map { (source, author, title, description, url, urlToImage, publishedAt, content) ->
+                        NewsEntity(
+                            source.name,
+                            author,
+                            title,
+                            description,
+                            url,
+                            urlToImage,
+                            publishedAt,
+                            content
+                        )
+                    })
+
+                    val news = newsDB.getAllNews()
+                    println("zzzzzzzz $news")
+                }.start()
 
                 if (newsAdapter.newsCount == 0) newsAdapter.setNews(articles)
                 else newsAdapter.addNews(articles)
