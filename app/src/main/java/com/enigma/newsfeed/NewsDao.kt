@@ -9,9 +9,9 @@ import androidx.room.Query
 interface NewsDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun addNews(news: List<NewsEntity>)
+    suspend fun addNews(news: List<NewsEntity>)
 
     @Query("SELECT * FROM news")
-    fun getAllNews(): List<NewsEntity>
+    suspend fun getAllNews(): List<NewsEntity>
 
 }

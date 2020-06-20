@@ -1,14 +1,16 @@
 package com.enigma.newsfeed
 
 import android.os.Bundle
+import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import kotlinx.android.synthetic.main.activity_main.*
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
+import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.launch
+import java.io.IOException
 import kotlin.math.ceil
 
 class MainActivity : AppCompatActivity() {
@@ -19,6 +21,8 @@ class MainActivity : AppCompatActivity() {
 
     private val newsAdapter = NewsAdapter()
 
+    private val scope = MainScope()
+
     private val newsDB by lazy { appDB.newsDao() }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -28,51 +32,48 @@ class MainActivity : AppCompatActivity() {
         loadNews()
     }
 
+    override fun onDestroy() {
+        scope.cancel()
+        super.onDestroy()
+    }
+
     private fun loadNews(pageNo: Int = 1) {
-        if (pageNo != 1) newsAdapter.loading = true
-        list.clearOnScrollListeners()
-        val call = Api.getApi().getHeadlines(
-            BuildConfig.API_KEY,
-            "in", pageNo, PAGE_SIZE
-        )
-        call.enqueue(object : Callback<NewsResponse> {
-
-            override fun onFailure(call: Call<NewsResponse>, t: Throwable) {
+        scope.launch {
+            if (pageNo != 1) newsAdapter.loading = true
+            list.clearOnScrollListeners()
+            try {
+                val news = Api.getApi().getHeadlines(
+                    BuildConfig.API_KEY,
+                    "in", pageNo, PAGE_SIZE
+                )
                 newsAdapter.loading = false
-            }
+                val articles = news.articles
+                if (articles.isEmpty()) return@launch
 
-            override fun onResponse(
-                call: Call<NewsResponse>,
-                response: Response<NewsResponse>
-            ) {
-                newsAdapter.loading = false
-                val body = response.body() ?: return
-                val articles = body.articles
-                if (articles.isEmpty()) return
+                newsDB.addNews(articles.map { (source, author, title, description, url, urlToImage, publishedAt, content) ->
+                    NewsEntity(
+                        source.name,
+                        author,
+                        title,
+                        description,
+                        url,
+                        urlToImage,
+                        publishedAt,
+                        content
+                    )
+                })
 
-                Thread {
-                    newsDB.addNews(articles.map { (source, author, title, description, url, urlToImage, publishedAt, content) ->
-                        NewsEntity(
-                            source.name,
-                            author,
-                            title,
-                            description,
-                            url,
-                            urlToImage,
-                            publishedAt,
-                            content
-                        )
-                    })
-
-                    val news = newsDB.getAllNews()
-                    println("zzzzzzzz $news")
-                }.start()
+                println("zzzzzzzz ${newsDB.getAllNews()}")
 
                 if (newsAdapter.newsCount == 0) newsAdapter.setNews(articles)
                 else newsAdapter.addNews(articles)
                 val newsCount = newsAdapter.newsCount
                 list.addOnScrollListener(object : RecyclerView.OnScrollListener() {
-                    override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                    override fun onScrolled(
+                        recyclerView: RecyclerView,
+                        dx: Int,
+                        dy: Int
+                    ) {
                         super.onScrolled(recyclerView, dx, dy)
                         (recyclerView.layoutManager as? LinearLayoutManager)?.apply {
                             val lastVisible = findLastVisibleItemPosition()
@@ -84,8 +85,11 @@ class MainActivity : AppCompatActivity() {
                         }
                     }
                 })
+
+            } catch (e: IOException) {
+                Log.e("zzzzzz", e.message ?: "Something went wrong")
             }
-        })
+        }
     }
 
     private fun loadList() {
